@@ -9,13 +9,33 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/wait.h>
+#include<signal.h>
 #define UDP_PORT 24460
 #define TCP_PORT 25460
 using namespace std;
+
+//socket defintions
+int tcp_socket,child_socket;
+
+//closes sockets on cntrl^c
+void interrupt_handler(int signal){
+    printf("Closing Socket");
+    close(child_socket);
+    close(tcp_socket);
+    exit(1);
+}
+
 int main(){
+    int tcp_socket, child_socket;
+
+    //handle cntrl^c
+    signal(SIGINT, interrupt_handler);
 
     //create tcp socket to communicate with clients, (IPv4, TCP, IP)
-    int tcp_socket = socket(AF_INET,SOCK_STREAM,0);
+    if((tcp_socket = socket(AF_INET,SOCK_STREAM,0))< 0){
+        printf("Error could not create socket");
+        exit(1);
+    }
 
     //address data structure for bind
     struct sockaddr_in tcp_address;
@@ -24,20 +44,39 @@ int main(){
     tcp_address.sin_port = htons(TCP_PORT); // htons converts to network byte order(big endian)
 
     //bind port no and address to socket
-    bind(tcp_socket,(struct sockaddr *)&tcp_address, sizeof(tcp_address));
+    if(bind(tcp_socket,(struct sockaddr *)&tcp_address, sizeof(tcp_address))<0){
+        printf("Error could not bind");
+        exit(1);
+    }
 
     //listen for potential clients, given queue limit of 3
-    listen(tcp_socket,3);
+    if(listen(tcp_socket,3)<0){
+        printf("Error listening");
+        exit(1);
+    }
     
     //client address
     struct sockaddr_in client_address;
     socklen_t client_length = sizeof(client_address);
 
     //create child socket once client request is found
-    int child_socket = accept(tcp_socket,(struct sockaddr *)&client_address, &client_length);
-
+    if( (child_socket = accept(tcp_socket,(struct sockaddr *)&client_address, &client_length)) < 0){
+        printf("Error accepting");
+        exit(1);
+    }
+    char username[50], password[50], buffer_in[100];
     printf("Connected!");
-
+    //recv(child_socket,buffer_in,100,0):
+    int n;
+    n = recv(child_socket,username,50,0);
+    if(n){
+        send(child_socket,"received",9,0);
+    }
+    else{
+        send(child_socket,"error",5,0);
+    }
+    recv(child_socket,password,50,0);
+    printf("username: %s password: %s", username,password);
     close(child_socket);
 
     printf("Socket closed");
