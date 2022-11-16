@@ -1,15 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <sys/wait.h>
-#include <signal.h>
+#include "utilities.h"
 #include<iostream>
 #define SERVER_PORT 25460
 using namespace std;
@@ -28,6 +17,14 @@ int main(){
      //handle cntrl^c
     signal(SIGINT, interrupt_handler);
 
+    //create client socket, do not bind to port
+    client_socket = create_socket(SOCK_STREAM,0,0);
+    //server address
+    struct sockaddr_in server_address = create_address(SERVER_PORT);
+    //client address
+    struct sockaddr_in client_address;
+    socklen_t client_length = sizeof(client_address);
+    /*
     //create tcp socket to communicate with serverM, (IPv4, TCP, IP)
     if ((client_socket = socket(AF_INET,SOCK_STREAM,0)) < 0){
         printf("Error could not create socket");
@@ -43,7 +40,7 @@ int main(){
     //client address
     struct sockaddr_in client_address;
     socklen_t client_length = sizeof(client_address);
-
+    */
 
     //connect to host
     if(connect(client_socket, (struct sockaddr*)&server_address,sizeof(server_address)) < 0){

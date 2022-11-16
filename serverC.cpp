@@ -1,15 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <sys/wait.h>
-#include<signal.h>
+#include "utilities.h"
 #define UDP_PORT 21460
 using namespace std;
 
@@ -18,6 +7,8 @@ int udp_socket;
 
 int main(){
 
+    udp_socket = create_socket(SOCK_DGRAM,1,UDP_PORT);
+    /*
     if((udp_socket = socket(AF_INET,SOCK_DGRAM,0))< 0){
         printf("Error could not create socket");
         exit(1);
@@ -34,7 +25,7 @@ int main(){
         printf("Error could not bind");
         exit(1);
     }
-
+    */
     //receive buffer
     char buffer[102];
 
