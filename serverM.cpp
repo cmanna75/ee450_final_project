@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include<signal.h>
+#include<utilities.h>
 #define UDP_PORT 24460
 #define SERVC_PORT 21460
 #define TCP_PORT 25460
@@ -31,7 +32,8 @@ int main(){
 
     //handle cntrl^c
     signal(SIGINT, interrupt_handler);
-
+    tcp_socket = create_socket(SOCK_STREAM,1,TCP_PORT);
+    /*
     //create tcp socket to communicate with clients, (IPv4, TCP, IP)
     if((tcp_socket = socket(AF_INET,SOCK_STREAM,0))< 0){
         printf("Error could not create socket");
@@ -49,7 +51,7 @@ int main(){
         printf("Error could not bind");
         exit(1);
     }
-
+    */
     //create udp socket
     if((udp_socket = socket(AF_INET,SOCK_DGRAM,0))< 0){
         printf("Error could not create socket");
