@@ -2,30 +2,25 @@
 #define UDP_PORT 21460
 using namespace std;
 
+//returns 0 if correct, 1 if username is wrong, 2 if password is wrong, 3 if both are wrong
+int check_credentials(char[] message){
+    
+}
 //socket defintion
 int udp_socket;
-
+void interrupt_handler(int signal){
+    printf("Closing Socket");
+    close(udp_socket);
+    exit(1);
+}
 int main(){
 
+    //handle cntrl^c
+    signal(SIGINT, interrupt_handler);
+
+    //create udp socket
     udp_socket = create_socket(SOCK_DGRAM,1,UDP_PORT);
-    /*
-    if((udp_socket = socket(AF_INET,SOCK_DGRAM,0))< 0){
-        printf("Error could not create socket");
-        exit(1);
-    }
 
-     //address data structure for bind
-    struct sockaddr_in udp_address;
-    udp_address.sin_family  = AF_INET;
-    udp_address.sin_addr.s_addr = inet_addr("127.0.0.1"); 
-    udp_address.sin_port = htons(UDP_PORT); // htons converts to network byte order(big endian)
-
-     //bind port no and address to socket
-    if(bind(udp_socket,(struct sockaddr *)&udp_address, sizeof(udp_address))<0){
-        printf("Error could not bind");
-        exit(1);
-    }
-    */
     //receive buffer
     char buffer[102];
 
@@ -34,17 +29,17 @@ int main(){
     memset(&client_address, 0, sizeof(client_address));
     socklen_t client_length = sizeof(client_address);
     int n;
+
+    //booting up message
+    printf("serverC is up and running using UDP on port %i\n", UDP_PORT)
     while(1){
         //wait for credentials
         n = recvfrom(udp_socket,buffer,102,0,(struct sockaddr *) &client_address, &client_length);
-        printf("blah\n");
-        printf("%s\n", buffer);
+        printf("The ServerC received an authentication request from the Main Server\n");
         //check if crednetials are valid
-
+        
         //send response
-
+        printf("The ServerC finished sending the response to the Main Server.\n")
     }
-
-
 
 }
