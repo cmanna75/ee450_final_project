@@ -41,12 +41,19 @@ int main(){
     }
     */
     udp_socket = create_socket(SOCK_DGRAM,1,UDP_PORT);
+
+    struct sockaddr_in servC_address = create_address(&servC_address,SERVC_PORT);
+    {
+        /* data */
+    };
+    
     //create udp socket
+    /*
     if((udp_socket = socket(AF_INET,SOCK_DGRAM,0))< 0){
         printf("Error could not create socket");
         exit(1);
     }
-    /*
+
      //address data structure for bind
     struct sockaddr_in udp_address;
     udp_address.sin_family  = AF_INET;

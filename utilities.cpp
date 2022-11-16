@@ -22,3 +22,9 @@ int create_socket(int type, bool bind_soc, int port){
     }
     return new_socket;
 }
+//creates recipient address to be used.
+void create_address(sock_addr_in& address,int port){
+    *address.family = AF_INET;
+    *address.sin_addr.s_addr = inet_addr("127.0.0.1"); 
+    *address.sin_port = htons(port); // htons converts to network byte order(big endian)
+}
