@@ -1,16 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <sys/wait.h>
-#include<signal.h>
-#include<utilities.h>
+#include "utilities.h"
 #define UDP_PORT 24460
 #define SERVC_PORT 21460
 #define TCP_PORT 25460
@@ -52,12 +40,13 @@ int main(){
         exit(1);
     }
     */
+    udp_socket = create_socket(SOCK_DGRAM,1,UDP_PORT);
     //create udp socket
     if((udp_socket = socket(AF_INET,SOCK_DGRAM,0))< 0){
         printf("Error could not create socket");
         exit(1);
     }
-
+    /*
      //address data structure for bind
     struct sockaddr_in udp_address;
     udp_address.sin_family  = AF_INET;
@@ -78,7 +67,7 @@ int main(){
         exit(1);
     }
     */
-    /*
+
     //listen for potential clients, given queue limit of 3
     if(listen(tcp_socket,3)<0){
         printf("Error listening");
@@ -107,7 +96,7 @@ int main(){
     }
     //recv(child_socket,password,50,0);
     printf("username: %s password: %s", username,password);
-    */
+    
     char buffer_in[50];
     sendto(udp_socket, "test",4,0,(struct sockaddr *) &servC_address, servC_length);
     recvfrom(udp_socket,buffer_in,102,0,(struct sockaddr *) &servC_address, &servC_length);
