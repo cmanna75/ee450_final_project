@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include <string>
 #include <string.h>
 #include <netdb.h>
 #include <sys/types.h>

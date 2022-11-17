@@ -7,37 +7,44 @@ using namespace std;
 //socket defintions
 int tcp_socket,child_socket,udp_socket;
 
-string encrypt(string msg){
+
+string encrypt_msg(string msg){
+    //printf("%s\n",msg.c_str());
+    printf("18: %c\n",msg[18]);
     string enc_msg;
+    int n = msg.length();
     int key = 0;
-    for(int i = 0; i < message.length(); i++){
+    for(int i = 0; i < n; i++){
+        char ch = msg[i];
+        //printf("%c %i %lu f18: %c\n",msg[i],i,msg.length(),msg[18]);
         //captial
-        if( (msg[i] >= 'A') && (msg[i] <= "Z")){
+        if( (ch >= 'A') && (ch <= 'Z')){
             key = msg[i] + 4;
-            if(key > "Z"){
-                key = key - "Z" + "A"- 1;
+            if(key > 'Z'){
+                key = key - 'Z' + 'A'- 1;
             }
-            enc_msg[i] = char(key);
+            enc_msg += key;
         }
         //lowercase
-        else if( (msg[i] >= 'a') && (msg[i] <= "z")){
+        else if( (ch >= 'a') && (ch <= 'z')){
             key = msg[i] + 4;
-            if(key > "z"){
-                key = key - "z" + "a"- 1;
+            if(key > 'z'){
+                key = key - 'z' + 'a'- 1;
             }
-            enc_msg[i] = char(key);
+            enc_msg += key;
         }
         //number
-        else if( (msg[i] >= '0') && (msg[i] <= "9")){
-            key = msg[i] + 4;
-            if(key > "9"){
-                key = key - "9" + "0" - 1;
+        else if( (ch >= '0') && (ch <= '9')){
+            key = ch + 4;
+            if(key > '9'){
+                key = key - '9' + '0' - 1;
             }
-            enc_msg[i] = char(key);
+            enc_msg  += key;
         }
         //special character make the same
+        
         else{
-            enc_msg[i] = msg[i];
+            enc_msg += ch;
         }
     }
     return enc_msg;
@@ -48,6 +55,7 @@ void interrupt_handler(int signal){
     printf("Closing Socket");
     close(child_socket);
     close(tcp_socket);
+    close(udp_socket);
     exit(1);
 }
 
@@ -59,10 +67,10 @@ int main(){
 
     //create tcp_server
     tcp_socket = create_socket(SOCK_STREAM,1,TCP_PORT);
-
+    printf("tcp good\n");
     //create udp_client
     udp_socket = create_socket(SOCK_DGRAM,1,UDP_PORT);
-
+    printf("udp good\n");
     //serverC address
     struct sockaddr_in servC_address = create_address(SERVC_PORT);
     socklen_t servC_length = sizeof(servC_address);
@@ -76,25 +84,30 @@ int main(){
     //client address
     struct sockaddr_in client_address;
     socklen_t client_length = sizeof(client_address);
-    printf("The main server is up and running.\n")
+    printf("The main server is up and running.\n");
     //create child socket once client request is found
     if( (child_socket = accept(tcp_socket,(struct sockaddr *)&client_address, &client_length)) < 0){
         printf("Error accepting");
         exit(1);
     }
-    string auth,username;
-    n = recv(child_socket,auth.c_str(),102,0);
+    char buffer_in[102];
+    string username;
+    int n = recv(child_socket,buffer_in,102,0);
+    string auth(buffer_in);
+    //auth = string(buffer_in);
     for(int i = 0; i < n; i++){
-        if(auth[i] == ","){
+        if(auth[i] == ','){
             username = auth.substr(0,i);
             break;
         }
     }
-    printf("The main server received the authentication for %s using TCP over port %u\n",username, ntohs(client_address.sin_port))
-
+    printf("The main server received the authentication for %s using TCP over port %u\n",username.c_str(), ntohs(client_address.sin_port));
+    //printf("%s\n",auth.c_str());
     //encrypt
-    string enc_auth = encrypt(auth);
-    printf("%s\n",enc_auth);
+    
+    string enc_auth = encrypt_msg(auth);
+
+    printf("%s\n",enc_auth.c_str());
     
     //char buffer_in[50];
     sendto(udp_socket, "test",4,0,(struct sockaddr *) &servC_address, servC_length);
@@ -104,5 +117,6 @@ int main(){
     close(child_socket);
 
     printf("Socket closed");
+    
     return 0;
 }

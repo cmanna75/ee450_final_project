@@ -3,8 +3,8 @@
 using namespace std;
 
 //returns 0 if correct, 1 if username is wrong, 2 if password is wrong, 3 if both are wrong
-int check_credentials(char[] message){
-    
+int check_credentials(string message){
+    return 0;
 }
 //socket defintion
 int udp_socket;
@@ -31,7 +31,7 @@ int main(){
     int n;
 
     //booting up message
-    printf("serverC is up and running using UDP on port %i\n", UDP_PORT)
+    printf("serverC is up and running using UDP on port %i\n", UDP_PORT);
     while(1){
         //wait for credentials
         n = recvfrom(udp_socket,buffer,102,0,(struct sockaddr *) &client_address, &client_length);
@@ -39,7 +39,7 @@ int main(){
         //check if crednetials are valid
         
         //send response
-        printf("The ServerC finished sending the response to the Main Server.\n")
+        printf("The ServerC finished sending the response to the Main Server.\n");
     }
 
 }
