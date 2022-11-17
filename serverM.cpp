@@ -42,10 +42,8 @@ int main(){
     */
     udp_socket = create_socket(SOCK_DGRAM,1,UDP_PORT);
 
-    struct sockaddr_in servC_address = create_address(&servC_address,SERVC_PORT);
-    {
-        /* data */
-    };
+    struct sockaddr_in servC_address = create_address(SERVC_PORT);
+    socklen_t servC_length = sizeof(servC_address);
     
     //create udp socket
     /*
@@ -104,7 +102,7 @@ int main(){
     //recv(child_socket,password,50,0);
     printf("username: %s password: %s", username,password);
     
-    char buffer_in[50];
+    //char buffer_in[50];
     sendto(udp_socket, "test",4,0,(struct sockaddr *) &servC_address, servC_length);
     recvfrom(udp_socket,buffer_in,102,0,(struct sockaddr *) &servC_address, &servC_length);
     printf("%s",buffer_in);

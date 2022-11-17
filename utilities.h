@@ -19,5 +19,5 @@
 int create_socket(int type, bool bind_soc, int port);
 
 //creates recipient address to be used
-void create_address(sock_addr_in& address,int port);
+sockaddr_in create_address(int port);
 #endif
