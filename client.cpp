@@ -35,7 +35,7 @@ int main(){
     string msg_out, username, password,msg_in;
     char buffer_in[10];
     int flag = 1;
-    for(int i = 0; i < 3; i++){
+    for(int i = 2; i >= 0; i--){
         cout<<"Please enter the username: ";
         getline(cin,username);
         cout<<"Please enter the password: ";
@@ -43,13 +43,27 @@ int main(){
         msg_out = username + "," + password;
         send(client_socket,msg_out.c_str(),msg_out.length(),0);
         printf("%s sent an authentication request to the main server.\n", username.c_str());
-        recv(client_socket,buffer_in,9,0);
-        //printf("%s",buffer_in);
-        //send(client_socket,password,strlen(password),0);
+        recv(client_socket,buffer_in,1,0);
+        if(buffer_in[0] == FAIL_NO_USR){
+            printf("%s received the result of authentication using TCP over port %u. Authentication failed: Username Does not exist\n", username.c_str(), ntohs(client_address.sin_port) );
+            printf("Attempts remaining: %i", i);
+        }
+        else if(buffer_in[0] == FAIL_NO_PASS){
+            printf("%s received the result of authentication using TCP over port %u. Authentication failed: Password does not match\n",username.c_str(), ntohs(client_address.sin_port));
+            printf("Attempts remaining: %i", i);
+        }
+        else if(buffer_in[0] == PASS_CRED){
+            printf("%s received the result of authentication using TCP over port %u. Authentication is successful\n",username.c_str(), ntohs(client_address.sin_port));
+            flag = 0;
+            break;
+        }
     }
     //if validation passed continue if not shutdown
     if(flag){
-        printf("blah!\n");
+        printf("Authentication Failed for 3 attempts. Client will shut down.\n");
+    }
+    else{
+        printf("Please enter the course code to query: ");
     }
     close(client_socket);
     return 0;

@@ -13,7 +13,7 @@ char check_credentials(string message){
         while(getline(creds,enc)){
             //remove delimtter
             //enc.erase(enc.size()-1,1);
-            printf("%s\n",enc.c_str());
+            //printf("%s\n",enc.c_str());
             //compare, //if username is correct set flag to 1
             int i = 0;
             while( (i < message.length()) && (i < enc.length())){
@@ -63,7 +63,7 @@ int main(){
         //wait for credentials
         n = recvfrom(udp_socket,buffer,102,0,(struct sockaddr *) &client_address, &client_length);
         string message(buffer);
-        printf("message: %s\n",message.c_str());
+        //printf("message: %s\n",message.c_str());
         printf("The ServerC received an authentication request from the Main Server\n");
 
         char response = check_credentials(message);

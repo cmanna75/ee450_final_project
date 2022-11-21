@@ -94,7 +94,7 @@ int main(){
     string username;
     int n = recv(child_socket,buffer_in,102,0);
     string auth(buffer_in);
-    //auth = string(buffer_in);
+    memset(buffer_in,0,102);
     for(int i = 0; i < n; i++){
         if(auth[i] == ','){
             username = auth.substr(0,i);
@@ -102,17 +102,11 @@ int main(){
         }
     }
     printf("The main server received the authentication for %s using TCP over port %u\n",username.c_str(), ntohs(client_address.sin_port));
-    //printf("%s\n",auth.c_str());
-    //encrypt
-    
     string enc_auth = encrypt_msg(auth);
-
     printf("%s\n",enc_auth.c_str());
-    
-    //char buffer_in[50];
     sendto(udp_socket, enc_auth.c_str(),enc_auth.length(),0,(struct sockaddr *) &servC_address, servC_length);
     recvfrom(udp_socket,buffer_in,1,0,(struct sockaddr *) &servC_address, &servC_length);
-    printf("%s",buffer_in);
+    send(child_socket,buffer_in,1,0);
 
     close(child_socket);
 
