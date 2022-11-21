@@ -110,8 +110,8 @@ int main(){
     printf("%s\n",enc_auth.c_str());
     
     //char buffer_in[50];
-    sendto(udp_socket, "test",4,0,(struct sockaddr *) &servC_address, servC_length);
-    recvfrom(udp_socket,buffer_in,102,0,(struct sockaddr *) &servC_address, &servC_length);
+    sendto(udp_socket, enc_auth.c_str(),enc_auth.length(),0,(struct sockaddr *) &servC_address, servC_length);
+    recvfrom(udp_socket,buffer_in,1,0,(struct sockaddr *) &servC_address, &servC_length);
     printf("%s",buffer_in);
 
     close(child_socket);

@@ -15,6 +15,9 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <sys/socket.h>
+#define FAIL_NO_USR '0'
+#define FAIL_NO_PASS '1'
+#define PASS_CRED '2'
 
 //creates any type of socket, and will bind if necessary
 int create_socket(int type, bool bind_soc, int port);

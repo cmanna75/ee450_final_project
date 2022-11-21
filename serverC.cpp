@@ -7,24 +7,28 @@ using namespace std;
 char check_credentials(string message){
     ifstream creds("cred.txt");
     string enc;
-    char flag = '0';
-    if(credsis_open()){
+    char flag = FAIL_NO_USR;
+    if(creds.is_open()){
         //compare each string
         while(getline(creds,enc)){
             //remove delimtter
-            enc.popback();
+            //enc.erase(enc.size()-1,1);
+            printf("%s\n",enc.c_str());
             //compare, //if username is correct set flag to 1
-            int i = 0
-            while( (i < message.length()) && (i < enc.length()){
+            int i = 0;
+            while( (i < message.length()) && (i < enc.length())){
                 //if mismatch do not check rest of string
                 if(message[i] != enc[i]){
+                    if(flag == FAIL_NO_PASS) //if usernames are macth but password is wrong do no iterate through remaining credentials will not match
+                        return flag;
                     break;
                 }
                 //username is correct
                 else if(message[i] == ',')
-                    flag = '1';
+                    flag = FAIL_NO_PASS;
                 else if( (i == message.length()-1) && i == enc.length()-1)
-                    return '3';
+                    return PASS_CRED;
+                i++;
             }
         }
     }
@@ -38,7 +42,6 @@ void interrupt_handler(int signal){
     exit(1);
 }
 int main(){
-
     //handle cntrl^c
     signal(SIGINT, interrupt_handler);
 
@@ -60,11 +63,13 @@ int main(){
         //wait for credentials
         n = recvfrom(udp_socket,buffer,102,0,(struct sockaddr *) &client_address, &client_length);
         string message(buffer);
+        printf("message: %s\n",message.c_str());
         printf("The ServerC received an authentication request from the Main Server\n");
+
+        char response = check_credentials(message);
         //check if crednetials are valid, and send to main server
-        sendto(udp_socket,check_credentials(message),1,0,(struct sockaddr *) &client_address, &client_length);
+        sendto(udp_socket,&response,1,0,(struct sockaddr *) &client_address, client_length);
         //send response
         printf("The ServerC finished sending the response to the Main Server.\n");
     }
-
 }
