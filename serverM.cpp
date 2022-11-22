@@ -9,8 +9,6 @@ int tcp_socket,child_socket,udp_socket;
 
 
 string encrypt_msg(string msg){
-    //printf("%s\n",msg.c_str());
-    printf("18: %c\n",msg[18]);
     string enc_msg;
     int n = msg.length();
     int key = 0;
@@ -85,32 +83,47 @@ int main(){
     struct sockaddr_in client_address;
     socklen_t client_length = sizeof(client_address);
     printf("The main server is up and running.\n");
-    //create child socket once client request is found
-    if( (child_socket = accept(tcp_socket,(struct sockaddr *)&client_address, &client_length)) < 0){
-        printf("Error accepting");
-        exit(1);
-    }
-    char buffer_in[102];
-    string username;
-    int n = recv(child_socket,buffer_in,102,0);
-    string auth(buffer_in);
-    memset(buffer_in,0,102);
-    for(int i = 0; i < n; i++){
-        if(auth[i] == ','){
-            username = auth.substr(0,i);
-            break;
+    //main loop
+    while(1){
+        //create child socket once client request is found
+        if( (child_socket = accept(tcp_socket,(struct sockaddr *)&client_address, &client_length)) < 0){
+            printf("Error accepting");
+            exit(1);
         }
+        int flag = 1;
+        char buffer_in[102];
+        for(int i = 2; i >= 0; i--){
+            string username;
+            memset(buffer_in,0,102);
+            int n = recv(child_socket,buffer_in,102,0);
+            string auth(buffer_in);
+            memset(buffer_in,0,102);
+            for(int i = 0; i < n; i++){
+                if(auth[i] == ','){
+                    username = auth.substr(0,i);
+                    break;
+                }
+            }
+            printf("The main server received the authentication for %s using TCP over port %u\n",username.c_str(), ntohs(client_address.sin_port));
+            string enc_auth = encrypt_msg(auth);
+            //printf("%s\n",enc_auth.c_str());
+            sendto(udp_socket, enc_auth.c_str(),enc_auth.length(),0,(struct sockaddr *) &servC_address, servC_length);
+            printf("The main server sent an authentication request to serverC\n");
+            recvfrom(udp_socket,buffer_in,1,0,(struct sockaddr *) &servC_address, &servC_length);
+            printf("The main server received the result of the authentication request from ServerC using UDP over port %u\n",ntohs(servC_address.sin_port));
+            send(child_socket,buffer_in,1,0);
+            printf("The main server sent the authentication result to the client.\n");
+            if(buffer_in[0] == PASS_CRED){
+                flag = 0;
+                break;
+            }
+        }
+        if(!flag){
+            printf("Course time!\n");
+        }
+        close(child_socket);
+
+        printf("Socket closed");
     }
-    printf("The main server received the authentication for %s using TCP over port %u\n",username.c_str(), ntohs(client_address.sin_port));
-    string enc_auth = encrypt_msg(auth);
-    printf("%s\n",enc_auth.c_str());
-    sendto(udp_socket, enc_auth.c_str(),enc_auth.length(),0,(struct sockaddr *) &servC_address, servC_length);
-    recvfrom(udp_socket,buffer_in,1,0,(struct sockaddr *) &servC_address, &servC_length);
-    send(child_socket,buffer_in,1,0);
-
-    close(child_socket);
-
-    printf("Socket closed");
-    
     return 0;
 }

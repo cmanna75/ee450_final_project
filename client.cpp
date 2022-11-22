@@ -50,7 +50,7 @@ int main(){
         }
         else if(buffer_in[0] == FAIL_NO_PASS){
             printf("%s received the result of authentication using TCP over port %u. Authentication failed: Password does not match\n",username.c_str(), ntohs(client_address.sin_port));
-            printf("Attempts remaining: %i", i);
+            printf("Attempts remaining: %i\n", i);
         }
         else if(buffer_in[0] == PASS_CRED){
             printf("%s received the result of authentication using TCP over port %u. Authentication is successful\n",username.c_str(), ntohs(client_address.sin_port));
