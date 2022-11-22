@@ -5,6 +5,27 @@ using namespace std;
 
 //socket defintion
 int client_socket;
+
+bool check_course_code(string code){
+    if(code.length() == 5){
+        if(code.substr(0,2) == "EE" || code.substr(0,2) == "CS"){
+            for(int i = 2; i < 5; i++){
+                if(code[i] < '0' || code[i] > '9'){
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+bool check_ctg(string ctg){
+    if(ctg ==  "Credit" || ctg == "Professor" || ctg == "Days" || ctg == "CourseName")
+        return true;
+    return false;
+}
+
 //closes sockets on cntrl^c
 void interrupt_handler(int signal){
     printf("Closing Socket");
@@ -63,7 +84,21 @@ int main(){
         printf("Authentication Failed for 3 attempts. Client will shut down.\n");
     }
     else{
-        printf("Please enter the course code to query: ");
+        string course_code, category;
+        while(1){
+            printf("Please enter the course code to query: ");
+            getline(cin,course_code);
+            if(check_course_code(course_code))
+                break;
+            printf("Error invalid course code format, please ensure capital letters and leave no white space\n");
+        }
+        while(1){
+            printf("Please enter Please enter the category (Credit / Professor / Days / CourseName): ");
+            getline(cin,category);
+            if(check_ctg(category))
+                break;
+            printf("Error invalid category, NOTE: category is case sensitive.\n");
+        }
     }
     close(client_socket);
     return 0;
