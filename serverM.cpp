@@ -120,6 +120,13 @@ int main(){
         }
         if(!flag){
             printf("Course time!\n");
+            memset(buffer_in,0,102);
+            recv(child_socket,buffer_in,17,0);
+            string course_querry(buffer_in);
+            if(course_querry.substr(0,2) == "EE")
+                printf("EE yay!\n");
+            else
+                printf("CS yay!\n");
         }
         close(child_socket);
 

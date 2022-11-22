@@ -99,6 +99,8 @@ int main(){
                 break;
             printf("Error invalid category, NOTE: category is case sensitive.\n");
         }
+        msg_out = course_code + "," + category;
+        send(client_socket,msg_out.c_str(),msg_out.length(),0);
     }
     close(client_socket);
     return 0;
