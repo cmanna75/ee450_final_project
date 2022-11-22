@@ -1,6 +1,8 @@
 #include "utilities.h"
 #define UDP_PORT 24460
 #define SERVC_PORT 21460
+#define SERVCS_PORT 22460
+#define SERVEE_PORT 23460
 #define TCP_PORT 25460
 using namespace std;
 
@@ -65,13 +67,21 @@ int main(){
 
     //create tcp_server
     tcp_socket = create_socket(SOCK_STREAM,1,TCP_PORT);
-    printf("tcp good\n");
+
     //create udp_client
     udp_socket = create_socket(SOCK_DGRAM,1,UDP_PORT);
-    printf("udp good\n");
+
     //serverC address
     struct sockaddr_in servC_address = create_address(SERVC_PORT);
     socklen_t servC_length = sizeof(servC_address);
+
+    //serverCS address
+    struct sockaddr_in servCS_address = create_address(SERVCS_PORT);
+    socklen_t servCS_length = sizeof(servCS_address);
+
+    //serverEE address
+    struct sockaddr_in servEE_address = create_address(SERVEE_PORT);
+    socklen_t servEE_length = sizeof(servEE_address);
 
     //listen for potential clients, given queue limit of 3
     if(listen(tcp_socket,3)<0){
@@ -123,10 +133,16 @@ int main(){
             memset(buffer_in,0,102);
             recv(child_socket,buffer_in,17,0);
             string course_querry(buffer_in);
-            if(course_querry.substr(0,2) == "EE")
+            if(course_querry.substr(0,2) == "EE"){
                 printf("EE yay!\n");
-            else
+                sendto(udp_socket,course_querry.c_str(),course_querry.length(),0,(struct sockaddr *) &servEE_address, servEE_length);
+                recvfrom(udp_socket,buffer_in,1,0,(struct sockaddr *) &servEE_address, &servEE_length);
+            }
+            else{
                 printf("CS yay!\n");
+                sendto(udp_socket,course_querry.c_str(),course_querry.length(),0,(struct sockaddr *) &servCS_address, servCS_length);
+                recvfrom(udp_socket,buffer_in,1,0,(struct sockaddr *) &servCS_address, &servCS_length);
+            }
         }
         close(child_socket);
 
