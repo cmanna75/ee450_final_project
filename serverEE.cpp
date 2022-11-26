@@ -31,7 +31,6 @@ string search_course(string message){
                 int j = 5;
                 int start, end;
                 while(i >= 0){
-                   //printf("%c, %i\n",course_info[j], i);
                     if(course_info[j] == ','||course_info[j] == '\0'){
                         if(i == 1)
                             start = j+1;
@@ -43,11 +42,13 @@ string search_course(string message){
                     j++;
                 }
                 string msg_out = "The " +ctg+" of "+message.substr(0,5)+" is "+course_info.substr(start,end-start+1)+".";
+                printf("The course information has been found; %s", msg_out.c_str());
                 return msg_out;
             } 
         }         
     }
-    string msg_out = "Didn’t find the course: " + message.substr(0,5);
+    string msg_out = "Didn’t find the course: " + message.substr(0,5)+".";
+    printf("%s\n", msg_out.c_str());
     return msg_out;
 }
 string query_courses(string message){
@@ -63,12 +64,14 @@ string query_courses(string message){
                 //if class codes match,take in call tategory information
                 if(course_info.substr(0,5) == message.substr(i,5)){
                     msg_out += message.substr(i,5) + ": " + course_info.substr(6,course_info.length() - 6) + "\n";
+                    printf("Found course: %s\n", message.substr(i,5).c_str());
                     flag = 1;
                     break;
                 }
             }
             if(!flag)
                 msg_out += "Didn’t find the course: " + message.substr(i,5) + "\n";
+                printf("%s", msg_out.c_str());
         }
         i = i + 6;
         courses.clear();
@@ -85,7 +88,6 @@ void interrupt_handler(int signal){
 }
 
 int main(){
-    /*
     //handle cntrl^c
     signal(SIGINT, interrupt_handler);
 
@@ -104,18 +106,23 @@ int main(){
     //booting up message
     printf("serverEE is up and running using UDP on port %i\n", UDP_PORT);
     while(1){
-        //wait for credentials
+        //wait for query from main
         n = recvfrom(udp_socket,buffer,102,0,(struct sockaddr *) &client_address, &client_length);
-        string message(buffer);
         printf("The ServerEE received an authentication request from the Main Server\n");
-        
-        string msg_out = search_course(message);
-        sendto(udp_socket,&response,1,0,(struct sockaddr *) &client_address, client_length);
+        string message(buffer);
+        string msg_out;
+        //if 0 normal function - search 1 course 1 category
+        if(message[0] == '0'){
+            msg_out = search_course(message.substr(2,message.length()-2));
+        }
+        //else extra credit - search multiple courses get all categoroes
+        else{
+            msg_out = query_courses(message.substr(2,message.length()-2));
+        }
+       
+        sendto(udp_socket,msg_out.c_str(),msg_out.length(),0,(struct sockaddr *) &client_address, client_length);
         //send response
         printf("The ServerC finished sending the response to the Main Server.\n");
-        */
-    //search_course("EE550,CourseName");
-    //}
-    query_courses("EE658,EE452,EE604,EE608,EE450");
+    }
     return 0;
 }
