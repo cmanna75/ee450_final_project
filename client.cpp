@@ -6,18 +6,50 @@ using namespace std;
 //socket defintion
 int client_socket;
 
-bool check_course_code(string code){
-    if(code.length() == 5){
-        if(code.substr(0,2) == "EE" || code.substr(0,2) == "CS"){
-            for(int i = 2; i < 5; i++){
-                if(code[i] < '0' || code[i] > '9'){
-                    return false;
-                }
-            }
-            return true;
+bool valid_course_code(string code){
+    for( int i = 0; i < 2; i++){
+        //if first two letters not capital letters return false
+        if( (code[i] < 'A') || (code[i] > 'Z'))
+            return false;
+
+    }
+        //if next three characters are not numbers return false
+    for(int i = 2; i < 5; i++){
+        if(code[i] < '0' || code[i] > '9'){
+            return false;
         }
     }
-    return false;
+    return true;
+}
+
+// 0 - error, 1 valid single course querry, 2 valid multi course querry
+char check_course_querry(string code){
+    //normal course querry
+    if(code.length() == 5){
+        if(valid_course_code(code))
+            return 1;
+    }
+    //multi course querry
+    else if(code.length() >= 11){
+        int i = 0;
+        int course_count = 0;
+        while(i < code.length()){
+            //if not valid course code
+            if(!valid_course_code(code.substr(i,5))){
+                return '0';
+            }
+            //if not space delimitted
+            if( !(code[i+5] == ' ' || code[i+5] == '\0') ){
+                return '0';
+            }
+            i = i + 6;
+            course_count++;
+        }
+        //if less than 10 courses
+        if(course_count < 10)
+            return '1';
+    }
+    return '0';
 }
 
 bool check_ctg(string ctg){
@@ -33,7 +65,6 @@ void interrupt_handler(int signal){
     exit(1);
 }
 int main(){
-    
      //handle cntrl^c
     signal(SIGINT, interrupt_handler);
 
@@ -84,23 +115,30 @@ int main(){
         printf("Authentication Failed for 3 attempts. Client will shut down.\n");
     }
     else{
-        string course_code, category;
         while(1){
-            printf("Please enter the course code to query: ");
-            getline(cin,course_code);
-            if(check_course_code(course_code))
-                break;
-            printf("Error invalid course code format, please ensure capital letters and leave no white space\n");
+            string course_code, category;
+            char querry_type = '0';
+            while(1){
+                printf("Please enter the course code(s) to query: ");
+                getline(cin,course_code);
+                querry_type == check_course_querry(course_code);
+                if(querry_type != '0')
+                    break;
+                printf("Error invalid course code format, please ensure capital letters, leave no white space, less than 10 querries\n");
+            }
+            msg_out = querry_type + "," + course_code;
+            if(querry_type == '1'){
+                while(1){
+                    printf("Please enter Please enter the category (Credit / Professor / Days / CourseName): ");
+                    getline(cin,category);
+                    if(check_ctg(category))
+                        break;
+                    printf("Error invalid category, NOTE: category is case sensitive.\n");
+                }
+                msg_out += "," + category;
+            }
+            send(client_socket,msg_out.c_str(),msg_out.length(),0);
         }
-        while(1){
-            printf("Please enter Please enter the category (Credit / Professor / Days / CourseName): ");
-            getline(cin,category);
-            if(check_ctg(category))
-                break;
-            printf("Error invalid category, NOTE: category is case sensitive.\n");
-        }
-        msg_out = course_code + "," + category;
-        send(client_socket,msg_out.c_str(),msg_out.length(),0);
     }
     close(client_socket);
     return 0;
