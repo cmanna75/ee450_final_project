@@ -138,7 +138,14 @@ int main(){
                 msg_out += "," + category;
             }
             send(client_socket,msg_out.c_str(),msg_out.length(),0);
-        }
+            char course_buffer_in[1000];
+            if(querry_type == '2')
+                recv(client_socket,buffer_in,1000,0);
+            else
+                recv(client_socket,buffer_in,200,0);
+            printf("%s",buffer_in);
+            printf("\n-----Start a new request-----\n");
+        }   
     }
     close(client_socket);
     return 0;
