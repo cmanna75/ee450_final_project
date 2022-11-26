@@ -50,6 +50,34 @@ string search_course(string message){
     string msg_out = "Didn’t find the course: " + message.substr(0,5);
     return msg_out;
 }
+string query_courses(string message){
+    string msg_out = "";
+    ifstream courses("ee.txt");
+    string course_info;
+    int i = 0;
+    while(i <= message.length()){
+        int flag = 0;
+        if(courses.is_open()){
+           // printf("blah\n");
+            while(getline(courses,course_info)){
+                //if class codes match,take in call tategory information
+                if(course_info.substr(0,5) == message.substr(i,5)){
+                    msg_out += message.substr(i,5) + ": " + course_info.substr(6,course_info.length() - 6) + "\n";
+                    flag = 1;
+                    break;
+                }
+            }
+            if(!flag)
+                msg_out += "Didn’t find the course: " + message.substr(i,5) + "\n";
+        }
+        i = i + 6;
+        courses.clear();
+        courses.seekg(0);
+    }  
+    printf("%s",msg_out.c_str());
+    return msg_out;
+}
+
 void interrupt_handler(int signal){
     printf("Closing Socket");
     close(udp_socket);
@@ -86,7 +114,8 @@ int main(){
         //send response
         printf("The ServerC finished sending the response to the Main Server.\n");
         */
-    search_course("EE520,CourseName");
+    //search_course("EE550,CourseName");
     //}
+    query_courses("EE658,EE452,EE604,EE608,EE450");
     return 0;
 }
