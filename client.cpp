@@ -24,10 +24,13 @@ bool valid_course_code(string code){
 
 // 0 - error, 1 valid single course querry, 2 valid multi course querry
 char check_course_querry(string code){
+    //printf("%s", code.c_str());
+    //printf("%lu", code.length());
     //normal course querry
     if(code.length() == 5){
         if(valid_course_code(code))
-            return 1;
+            printf("blah\n");
+            return '1';
     }
     //multi course querry
     else if(code.length() >= 11){
@@ -47,7 +50,7 @@ char check_course_querry(string code){
         }
         //if less than 10 courses
         if(course_count < 10)
-            return '1';
+            return '2';
     }
     return '0';
 }
@@ -65,6 +68,7 @@ void interrupt_handler(int signal){
     exit(1);
 }
 int main(){
+    
      //handle cntrl^c
     signal(SIGINT, interrupt_handler);
 
@@ -121,7 +125,8 @@ int main(){
             while(1){
                 printf("Please enter the course code(s) to query: ");
                 getline(cin,course_code);
-                querry_type == check_course_querry(course_code);
+                querry_type = check_course_querry(course_code);
+                printf("%c", querry_type);
                 if(querry_type != '0')
                     break;
                 printf("Error invalid course code format, please ensure capital letters, leave no white space, less than 10 querries\n");
