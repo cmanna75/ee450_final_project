@@ -132,17 +132,13 @@ int main(){
             while(1){
                 printf("Course time!\n");
                 memset(buffer_in,0,102);
-                char test[100];
-                recv(child_socket,test,70,0);
-                string course_querry(test);
+                recv(child_socket,buffer_in,70,0);
+                string course_querry(buffer_in);
                 string course_response;
                 char course_buffer_in[1000];
-                
-                printf("buf: %c\n", test[0]);
-                printf("%s\n",test);
-                memset(buffer_in,0,102);
-                printf("string: %c\n", course_querry[0]);
+                printf("char: %s\n", buffer_in);
                 printf("%s\n", course_querry.c_str());
+                memset(buffer_in,0,102);
 
                 //normal querry 1 course, 1 category
                 if(course_querry[0] == '1'){

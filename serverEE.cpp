@@ -18,7 +18,6 @@ string search_course(string message){
                 int i = 0;
                 if(ctg == "Credit"){
                     i = 1;
-                    printf("blah\n");
                 }
                 else if(ctg == "Professor"){
                     i = 2;
@@ -30,7 +29,8 @@ string search_course(string message){
                     i  = 4;
                 }
                 int j = 5;
-                int start, end;
+                int start = 0;
+                int end = 0;
                 while(i >= 0){
                     if(course_info[j] == ','||course_info[j] == '\0'){
                         if(i == 1)
@@ -107,6 +107,7 @@ int main(){
     //booting up message
     printf("serverEE is up and running using UDP on port %i\n", UDP_PORT);
     while(1){
+        memset(buffer,0,102);
         //wait for query from main
         n = recvfrom(udp_socket,buffer,102,0,(struct sockaddr *) &client_address, &client_length);
         printf("The ServerEE received an authentication request from the Main Server\n");
@@ -115,8 +116,6 @@ int main(){
         //if 0 normal function - search 1 course 1 category
         if(message[0] == '1'){
             msg_out = search_course(message.substr(2,message.length()-2));
-            printf("blah\n");
-            printf("%s\n",msg_out.c_str());
         }
         //else extra credit - search multiple courses get all categoroes
         else if (message[0] == '2'){
