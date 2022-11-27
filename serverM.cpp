@@ -129,108 +129,110 @@ int main(){
             }
         }
         if(!flag){
-            printf("Course time!\n");
-            memset(buffer_in,0,102);
-            char test[100];
-            recv(child_socket,test,70,0);
-            string course_querry(test);
-            string course_response;
-            char course_buffer_in[1000];
-            
-            printf("buf: %c\n", test[0]);
-            printf("%s\n",test);
-            memset(buffer_in,0,102);
-            printf("string: %c\n", course_querry[0]);
-            printf("%s\n", course_querry.c_str());
+            while(1){
+                printf("Course time!\n");
+                memset(buffer_in,0,102);
+                char test[100];
+                recv(child_socket,test,70,0);
+                string course_querry(test);
+                string course_response;
+                char course_buffer_in[1000];
+                
+                printf("buf: %c\n", test[0]);
+                printf("%s\n",test);
+                memset(buffer_in,0,102);
+                printf("string: %c\n", course_querry[0]);
+                printf("%s\n", course_querry.c_str());
 
-            //normal querry 1 course, 1 category
-            if(course_querry[0] == '1'){
-                if(course_querry.substr(2,2) == "EE"){
-                    printf("EE yay!\n");
-                    sendto(udp_socket,course_querry.c_str(),course_querry.length(),0,(struct sockaddr *) &servEE_address, servEE_length);
-                    recvfrom(udp_socket,course_buffer_in,200,0,(struct sockaddr *) &servEE_address, &servEE_length);
-                    course_response = string(course_buffer_in);
-                    printf("%s\n",course_buffer_in);
-                    printf("%s\n",course_response.c_str());
-                }
-                else if(course_querry.substr(2,2) == "CS"){
-                    printf("CS yay!\n");
-                    sendto(udp_socket,course_querry.c_str(),course_querry.length(),0,(struct sockaddr *) &servCS_address, servCS_length);
-                    recvfrom(udp_socket,course_buffer_in,200,0,(struct sockaddr *) &servCS_address, &servCS_length);
-                    course_response = string(course_buffer_in);
-                }
-                //cannot find department 
-                else{
-                    course_response = "Didn’t find the course: " + course_querry.substr(2,5) + "\n";
-                }
-            }
-            //EC multiple courses
-            else if(course_querry[0] == '2'){
-
-                //create all class array, create EE string, create CS string
-                string courses[9];
-                string EE_querry("2");
-                string CS_querry("2");
-                int course_count = 0;
-                for(int i = 2; i < course_querry.length(); i = i + 6){
-                    courses[course_count] = course_querry.substr(i,5);
-                    course_count++;
-                    if(course_querry.substr(i,2) == "EE"){
-                        EE_querry += "," + course_querry.substr(i,5);
+                //normal querry 1 course, 1 category
+                if(course_querry[0] == '1'){
+                    if(course_querry.substr(2,2) == "EE"){
+                        printf("EE yay!\n");
+                        sendto(udp_socket,course_querry.c_str(),course_querry.length(),0,(struct sockaddr *) &servEE_address, servEE_length);
+                        recvfrom(udp_socket,course_buffer_in,200,0,(struct sockaddr *) &servEE_address, &servEE_length);
+                        course_response = string(course_buffer_in);
+                        printf("%s\n",course_buffer_in);
+                        printf("%s\n",course_response.c_str());
                     }
-                    else if(course_querry.substr(i,2) == "CS"){
-                        CS_querry += "," + course_querry.substr(i,5);
+                    else if(course_querry.substr(2,2) == "CS"){
+                        printf("CS yay!\n");
+                        sendto(udp_socket,course_querry.c_str(),course_querry.length(),0,(struct sockaddr *) &servCS_address, servCS_length);
+                        recvfrom(udp_socket,course_buffer_in,200,0,(struct sockaddr *) &servCS_address, &servCS_length);
+                        course_response = string(course_buffer_in);
                     }
-                }
-                if(EE_querry.length() > 1){
-                    //send EE
-                    sendto(udp_socket, EE_querry.c_str(), EE_querry.length(),0,(struct sockaddr *) &servEE_address, servEE_length); 
-
-                    //receive EE
-                    recvfrom(udp_socket,course_buffer_in,1000,0,(struct sockaddr *) &servEE_address, &servEE_length);
-                    EE_querry = string(course_buffer_in);
-                    memset(course_buffer_in,0,1000);
-                }
-                if(CS_querry.length() > 1){
-                    //send CS
-                    sendto(udp_socket, CS_querry.c_str(), CS_querry.length(),0,(struct sockaddr *) &servCS_address, servCS_length); 
-                    //receive CS
-                    recvfrom(udp_socket,course_buffer_in,1000,0,(struct sockaddr *) &servCS_address, &servCS_length);
-                    CS_querry = string(course_buffer_in);
-                    memset(course_buffer_in,0,1000);
-                }
-
-                //create response string for client
-                for(int i = 0; i <= course_count; i++){
-                    if(courses[i].substr(0,2) == "EE"){
-                        int j = 0;
-                        while(EE_querry[j] != '\n'){
-                            j++;
-                        }
-                        course_response += EE_querry.substr(0,j+1);
-                        EE_querry = EE_querry.substr(j+2,EE_querry.length()-j-2);
-                    }
-                    else if(courses[i].substr(0,2) == "CS"){ 
-                        int j = 0;
-                        while(CS_querry[j] != '\n'){
-                            j++;
-                        }
-                        course_response += CS_querry.substr(0,j+1);
-                        CS_querry = CS_querry.substr(j+2,CS_querry.length()-j-2);
-                    }
+                    //cannot find department 
                     else{
-                        course_response +=  "Didn’t find the course: " + courses[i].substr(2,5) + "\n";
+                        course_response = "Didn’t find the course: " + course_querry.substr(2,5) + "\n";
                     }
                 }
+                //EC multiple courses
+                else if(course_querry[0] == '2'){
 
+                    //create all class array, create EE string, create CS string
+                    string courses[9];
+                    string EE_querry("2");
+                    string CS_querry("2");
+                    int course_count = 0;
+                    for(int i = 2; i < course_querry.length(); i = i + 6){
+                        courses[course_count] = course_querry.substr(i,5);
+                        course_count++;
+                        if(course_querry.substr(i,2) == "EE"){
+                            EE_querry += "," + course_querry.substr(i,5);
+                        }
+                        else if(course_querry.substr(i,2) == "CS"){
+                            CS_querry += "," + course_querry.substr(i,5);
+                        }
+                    }
+                    if(EE_querry.length() > 1){
+                        //send EE
+                        sendto(udp_socket, EE_querry.c_str(), EE_querry.length(),0,(struct sockaddr *) &servEE_address, servEE_length); 
+
+                        //receive EE
+                        recvfrom(udp_socket,course_buffer_in,1000,0,(struct sockaddr *) &servEE_address, &servEE_length);
+                        EE_querry = string(course_buffer_in);
+                        memset(course_buffer_in,0,1000);
+                    }
+                    if(CS_querry.length() > 1){
+                        //send CS
+                        sendto(udp_socket, CS_querry.c_str(), CS_querry.length(),0,(struct sockaddr *) &servCS_address, servCS_length); 
+                        //receive CS
+                        recvfrom(udp_socket,course_buffer_in,1000,0,(struct sockaddr *) &servCS_address, &servCS_length);
+                        CS_querry = string(course_buffer_in);
+                        memset(course_buffer_in,0,1000);
+                    }
+
+                    //create response string for client
+                    for(int i = 0; i <= course_count; i++){
+                        if(courses[i].substr(0,2) == "EE"){
+                            int j = 0;
+                            while(EE_querry[j] != '\n'){
+                                j++;
+                            }
+                            course_response += EE_querry.substr(0,j+1);
+                            EE_querry = EE_querry.substr(j+2,EE_querry.length()-j-2);
+                        }
+                        else if(courses[i].substr(0,2) == "CS"){ 
+                            int j = 0;
+                            while(CS_querry[j] != '\n'){
+                                j++;
+                            }
+                            course_response += CS_querry.substr(0,j+1);
+                            CS_querry = CS_querry.substr(j+2,CS_querry.length()-j-2);
+                        }
+                        else{
+                            course_response +=  "Didn’t find the course: " + courses[i].substr(2,5) + "\n";
+                        }
+                    }
+
+                }
+                //else error occured
+                else{
+                    course_response = "Error invalid Querry Type\n";
+                }
+                //send querry response to client
+                send(child_socket,course_response.c_str(),course_response.length(),0);
+                printf("The main server sent the query information to the client.\n");
             }
-            //else error occured
-            else{
-                course_response = "Error invalid Querry Type\n";
-            }
-            //send querry response to client
-            send(child_socket,course_response.c_str(),course_response.length(),0);
-            printf("The main server sent the query information to the client.\n");
         } 
         close(child_socket);
 
