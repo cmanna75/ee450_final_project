@@ -18,6 +18,7 @@ string search_course(string message){
                 int i = 0;
                 if(ctg == "Credit"){
                     i = 1;
+                    printf("blah\n");
                 }
                 else if(ctg == "Professor"){
                     i = 2;
@@ -112,17 +113,23 @@ int main(){
         string message(buffer);
         string msg_out;
         //if 0 normal function - search 1 course 1 category
-        if(message[0] == '0'){
+        if(message[0] == '1'){
             msg_out = search_course(message.substr(2,message.length()-2));
+            printf("blah\n");
+            printf("%s\n",msg_out.c_str());
         }
         //else extra credit - search multiple courses get all categoroes
-        else{
+        else if (message[0] == '2'){
             msg_out = query_courses(message.substr(2,message.length()-2));
+        }
+        //error occured
+        else{
+            msg_out = "Error occured\n";
         }
        
         sendto(udp_socket,msg_out.c_str(),msg_out.length(),0,(struct sockaddr *) &client_address, client_length);
         //send response
-        printf("The ServerC finished sending the response to the Main Server.\n");
+        printf("The ServerEE finished sending the response to the Main Server.\n");
     }
     return 0;
 }

@@ -23,14 +23,11 @@ bool valid_course_code(string code){
 }
 
 // 0 - error, 1 valid single course querry, 2 valid multi course querry
-char check_course_querry(string code){
-    //printf("%s", code.c_str());
-    //printf("%lu", code.length());
+string check_course_querry(string code){
     //normal course querry
     if(code.length() == 5){
         if(valid_course_code(code))
-            printf("blah\n");
-            return '1';
+            return "1";
     }
     //multi course querry
     else if(code.length() >= 11){
@@ -39,20 +36,20 @@ char check_course_querry(string code){
         while(i < code.length()){
             //if not valid course code
             if(!valid_course_code(code.substr(i,5))){
-                return '0';
+                return "0";
             }
             //if not space delimitted
             if( !(code[i+5] == ' ' || code[i+5] == '\0') ){
-                return '0';
+                return "0";
             }
             i = i + 6;
             course_count++;
         }
         //if less than 10 courses
         if(course_count < 10)
-            return '2';
+            return "2";
     }
-    return '0';
+    return "0";
 }
 
 bool check_ctg(string ctg){
@@ -121,18 +118,18 @@ int main(){
     else{
         while(1){
             string course_code, category;
-            char querry_type = '0';
+            string querry_type = "0";
             while(1){
                 printf("Please enter the course code(s) to query: ");
                 getline(cin,course_code);
                 querry_type = check_course_querry(course_code);
-                printf("%c", querry_type);
-                if(querry_type != '0')
+                printf("q_type: %s\n", querry_type.c_str());
+                if(querry_type != "0")
                     break;
                 printf("Error invalid course code format, please ensure capital letters, leave no white space, less than 10 querries\n");
             }
             msg_out = querry_type + "," + course_code;
-            if(querry_type == '1'){
+            if(querry_type == "1"){
                 while(1){
                     printf("Please enter Please enter the category (Credit / Professor / Days / CourseName): ");
                     getline(cin,category);
@@ -142,13 +139,14 @@ int main(){
                 }
                 msg_out += "," + category;
             }
+            printf("message out %s\n", msg_out.c_str());
             send(client_socket,msg_out.c_str(),msg_out.length(),0);
             char course_buffer_in[1000];
-            if(querry_type == '2')
-                recv(client_socket,buffer_in,1000,0);
+            if(querry_type == "2")
+                recv(client_socket,course_buffer_in,1000,0);
             else
-                recv(client_socket,buffer_in,200,0);
-            printf("%s",buffer_in);
+                recv(client_socket,course_buffer_in,200,0);
+            printf("%s",course_buffer_in);
             printf("\n-----Start a new request-----\n");
         }   
     }
