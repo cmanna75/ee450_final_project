@@ -7,10 +7,14 @@ using namespace std;
 //socket defintion
 int udp_socket;
 
+//searches for singlular course, with category
 string search_course(string message){
+
+    //open file
     ifstream courses("ee.txt");
     string course_info;
     if(courses.is_open()){
+        //go through file
         while(getline(courses,course_info)){
             //remove carraige return /r
             if(course_info[course_info.length()-1] == '\r'){
@@ -18,6 +22,7 @@ string search_course(string message){
             }
             //if class codes match look for specified category
             if(course_info.substr(0,5) == message.substr(0,5)){
+                //ctg sub string
                 string ctg = message.substr(6,message.length()-6);
                 int i = 0;
                 if(ctg == "Credit"){
@@ -35,6 +40,7 @@ string search_course(string message){
                 int j = 5;
                 int start = 0;
                 int end = 0;
+                //loop to find start and end of substring
                 while(i >= 0){
                     if(course_info[j] == ','|| j == course_info.length()){
                         if(i == 1)
@@ -52,21 +58,25 @@ string search_course(string message){
             } 
         }         
     }
+    //if no course found, default message
     string msg_out = "Didn’t find the course: " + message.substr(0,5)+".";
     printf("%s\n", msg_out.c_str());
     return msg_out;
 }
+
+//EC multiple courses
 string query_courses(string message){
+    //msg out string
     string msg_out = "";
+    //open file
     ifstream courses("ee.txt");
-    string course_info;
-    int i = 0;
-    while(i <= message.length()){
+    string course_info; 
+    //increment through EE classes in message, compare to ee.txt classes
+    for(int i = 0; i <= message.length();i = i + 6){
         int flag = 0;
         if(courses.is_open()){
-           // printf("blah\n");
             while(getline(courses,course_info)){
-                //if class codes match,take in call tategory information
+                //if class codes match,take in all category information
                 if(course_info.substr(0,5) == message.substr(i,5)){
                     msg_out += message.substr(i,5) + ": " + course_info.substr(6,course_info.length() - 6) + "\n";
                     printf("Found course: %s\n", message.substr(i,5).c_str());
@@ -76,13 +86,12 @@ string query_courses(string message){
             }
             if(!flag)
                 msg_out += "Didn’t find the course: " + message.substr(i,5) + "\n";
-                printf("%s", msg_out.c_str());
+                printf("Didn’t find the course: %s\n", message.substr(i,5).c_str());
         }
-        i = i + 6;
         courses.clear();
         courses.seekg(0);
     }  
-    printf("%s",msg_out.c_str());
+    //printf("%s",msg_out.c_str());
     return msg_out;
 }
 
@@ -112,12 +121,12 @@ int main(){
     //booting up message
     printf("serverEE is up and running using UDP on port %i\n", UDP_PORT);
     while(1){
-        memset(buffer,0,102);
+        memset(buffer,0,102); //ensure buffer is cleared
         //wait for query from main
         n = recvfrom(udp_socket,buffer,102,0,(struct sockaddr *) &client_address, &client_length);
         printf("The ServerEE received an authentication request from the Main Server\n");
-        string message(buffer);
-        string msg_out;
+        string message(buffer); //convert to string
+        string msg_out; //output sring
         //if 0 normal function - search 1 course 1 category
         if(message[0] == '1'){
             msg_out = search_course(message.substr(2,message.length()-2));
@@ -130,9 +139,8 @@ int main(){
         else{
             msg_out = "Error occured\n";
         }
-       
-        sendto(udp_socket,msg_out.c_str(),msg_out.length(),0,(struct sockaddr *) &client_address, client_length);
         //send response
+        sendto(udp_socket,msg_out.c_str(),msg_out.length(),0,(struct sockaddr *) &client_address, client_length);
         printf("The ServerEE finished sending the response to the Main Server.\n");
     }
     return 0;
