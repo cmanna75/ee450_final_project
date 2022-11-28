@@ -60,7 +60,6 @@ void interrupt_handler(int signal){
 }
 
 int main(){
-    //int tcp_socket, child_socket;
 
     //handle cntrl^c
     signal(SIGINT, interrupt_handler);
@@ -100,14 +99,17 @@ int main(){
             printf("Error accepting");
             exit(1);
         }
-        int flag = 1;
-        char buffer_in[102];
+        int auth_flag = 1; //flag for determining authentication
+        char client_buffer_in[102]; //buffer in for client NOTE: also gets used for serverC
+        string username;
+        //Auth for loop gives three attempts before closing child socket
         for(int i = 2; i >= 0; i--){
-            string username;
-            memset(buffer_in,0,102);
-            int n = recv(child_socket,buffer_in,102,0);
-            string auth(buffer_in);
-            memset(buffer_in,0,102);
+            memset(client_buffer_in,0,102);
+            int n = recv(child_socket,client_buffer_in,102,0);
+            string auth(client_buffer_in);
+            memset(client_buffer_in,0,102);
+
+            //grabs username from string
             for(int i = 0; i < n; i++){
                 if(auth[i] == ','){
                     username = auth.substr(0,i);
@@ -115,56 +117,71 @@ int main(){
                 }
             }
             printf("The main server received the authentication for %s using TCP over port %u\n",username.c_str(), ntohs(client_address.sin_port));
-            string enc_auth = encrypt_msg(auth);
-            //printf("%s\n",enc_auth.c_str());
+            string enc_auth = encrypt_msg(auth); //encrypts message
+            //send to serverC
             sendto(udp_socket, enc_auth.c_str(),enc_auth.length(),0,(struct sockaddr *) &servC_address, servC_length);
             printf("The main server sent an authentication request to serverC\n");
-            recvfrom(udp_socket,buffer_in,1,0,(struct sockaddr *) &servC_address, &servC_length);
-            printf("The main server received the result of the authentication request from ServerC using UDP over port %u\n",ntohs(servC_address.sin_port));
-            send(child_socket,buffer_in,1,0);
+            //receive from serverC
+            recvfrom(udp_socket,client_buffer_in,1,0,(struct sockaddr *) &servC_address, &servC_length);
+            printf("The main server received the result of the authentication request from ServerC using UDP over port %i\n",UDP_PORT);
+            //send to client
+            send(child_socket,client_buffer_in,1,0);
             printf("The main server sent the authentication result to the client.\n");
-            if(buffer_in[0] == PASS_CRED){
-                flag = 0;
+            //if authentication passed break for loop and set flag
+            if(client_buffer_in[0] == PASS_CRED){
+                auth_flag = 0;
                 break;
             }
         }
-        if(!flag){
+        //if authentication passed
+        if(!auth_flag){
+            //loop querry
             while(1){
-                printf("Course time!\n");
-                memset(buffer_in,0,102);
-                recv(child_socket,buffer_in,70,0);
-                string course_querry(buffer_in);
+                memset(client_buffer_in,0,102);
+                recv(child_socket,client_buffer_in,70,0);
+                string course_querry(client_buffer_in);
                 string course_response;
-                char course_buffer_in[1000];
-                printf("char: %s\n", buffer_in);
-                printf("%s\n", course_querry.c_str());
-                memset(buffer_in,0,102);
+                char course_buffer_in[1000]; //buffer for large course info querry (1000 is enough for ~ 10 classes)
+                memset(client_buffer_in,0,102);
                 memset(course_buffer_in,0,1000);
 
                 //normal querry 1 course, 1 category
                 if(course_querry[0] == '1'){
+
+                    printf("The main server received from %s to query course %s about %s using TCP over port %i.\n",username.c_str(), course_querry.substr(2,5).c_str(), course_querry.substr(8,course_querry.length()-8).c_str(),ntohs(client_address.sin_port));
+
+                    //EE
                     if(course_querry.substr(2,2) == "EE"){
-                        printf("EE yay!\n");
+                        //send
                         sendto(udp_socket,course_querry.c_str(),course_querry.length(),0,(struct sockaddr *) &servEE_address, servEE_length);
+                        printf("The main server sent a request to serverEE.\n");
+                        //receive
                         recvfrom(udp_socket,course_buffer_in,200,0,(struct sockaddr *) &servEE_address, &servEE_length);
-                        course_response = string(course_buffer_in);
+                        printf("The main server received the response from serverEE using UDP over port %i.\n", UDP_PORT);
+                        course_response = string(course_buffer_in); //convert to response string
                         memset(course_buffer_in,0,1000);
-                        printf("%s\n",course_response.c_str());
                     }
+                    //CS
                     else if(course_querry.substr(2,2) == "CS"){
-                        printf("CS yay!\n");
+                        //send
                         sendto(udp_socket,course_querry.c_str(),course_querry.length(),0,(struct sockaddr *) &servCS_address, servCS_length);
+                        printf("The main server sent a request to serverCS.\n");
+                        //receive
                         recvfrom(udp_socket,course_buffer_in,200,0,(struct sockaddr *) &servCS_address, &servCS_length);
-                        course_response = string(course_buffer_in);
+                        printf("The main server received the response from serverCS using UDP over port %i.\n", UDP_PORT);
+                        course_response = string(course_buffer_in); //convert to response string
                         memset(course_buffer_in,0,1000);
                     }
                     //cannot find department 
                     else{
+                        printf("INVALID Course Department, %s\n", course_querry.substr(2,2).c_str());
                         course_response = "Didn’t find the course: " + course_querry.substr(2,5) + "\n";
                     }
                 }
                 //EC multiple courses
                 else if(course_querry[0] == '2'){
+
+                     printf("The main server received from %s to query courses %s using TCP over port %i.\n",username.c_str(), course_querry.substr(2,course_querry.length()-2).c_str(),ntohs(client_address.sin_port));
 
                     //create all class array, create EE string, create CS string
                     string courses[9];
@@ -184,21 +201,23 @@ int main(){
                     if(EE_querry.length() > 1){
                         //send EE
                         sendto(udp_socket, EE_querry.c_str(), EE_querry.length(),0,(struct sockaddr *) &servEE_address, servEE_length); 
-
+                        printf("The main server sent a request to serverEE.\n");
                         //receive EE
                         recvfrom(udp_socket,course_buffer_in,1000,0,(struct sockaddr *) &servEE_address, &servEE_length);
+                        printf("The main server received the response from serverEE using UDP over port %i.\n", UDP_PORT);
                         EE_querry = string(course_buffer_in);
                         memset(course_buffer_in,0,1000);
                     }
                     if(CS_querry.length() > 1){
                         //send CS
                         sendto(udp_socket, CS_querry.c_str(), CS_querry.length(),0,(struct sockaddr *) &servCS_address, servCS_length); 
+                        printf("The main server sent a request to serverCS.\n");
                         //receive CS
                         recvfrom(udp_socket,course_buffer_in,1000,0,(struct sockaddr *) &servCS_address, &servCS_length);
+                        printf("The main server received the response from serverCS using UDP over port %i.\n", UDP_PORT);
                         CS_querry = string(course_buffer_in);
                         memset(course_buffer_in,0,1000);
                     }
-                    //printf("%s blah\n",EE_querry.c_str());
                     //create response string for client
                     course_response = "CourseCode: Credits, Professor, Days, Course Name\n"; //header line
                     for(int i = 0; i < course_count; i++){
@@ -228,6 +247,7 @@ int main(){
                 }
                 //else error occured
                 else{
+                    printf("Error invalid Querry Type\n");
                     course_response = "Error invalid Querry Type\n";
                 }
                 //send querry response to client
