@@ -147,7 +147,7 @@ int main(){
                         sendto(udp_socket,course_querry.c_str(),course_querry.length(),0,(struct sockaddr *) &servEE_address, servEE_length);
                         recvfrom(udp_socket,course_buffer_in,200,0,(struct sockaddr *) &servEE_address, &servEE_length);
                         course_response = string(course_buffer_in);
-                        printf("%s\n",course_buffer_in);
+                        memset(course_buffer_in,0,1000);
                         printf("%s\n",course_response.c_str());
                     }
                     else if(course_querry.substr(2,2) == "CS"){
@@ -155,6 +155,7 @@ int main(){
                         sendto(udp_socket,course_querry.c_str(),course_querry.length(),0,(struct sockaddr *) &servCS_address, servCS_length);
                         recvfrom(udp_socket,course_buffer_in,200,0,(struct sockaddr *) &servCS_address, &servCS_length);
                         course_response = string(course_buffer_in);
+                        memset(course_buffer_in,0,1000);
                     }
                     //cannot find department 
                     else{

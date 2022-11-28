@@ -142,6 +142,7 @@ int main(){
             printf("message out %s\n", msg_out.c_str());
             send(client_socket,msg_out.c_str(),msg_out.length(),0);
             char course_buffer_in[1000];
+            memset(course_buffer_in,0,1000);
             if(querry_type == "2")
                 recv(client_socket,course_buffer_in,1000,0);
             else

@@ -12,6 +12,10 @@ string search_course(string message){
     string course_info;
     if(courses.is_open()){
         while(getline(courses,course_info)){
+            //remove carraige return /r
+            if(course_info[course_info.length()-1] == '\r'){
+                course_info.erase(course_info.length()-1,1);
+            }
             //if class codes match look for specified category
             if(course_info.substr(0,5) == message.substr(0,5)){
                 string ctg = message.substr(6,message.length()-6);
@@ -32,7 +36,7 @@ string search_course(string message){
                 int start = 0;
                 int end = 0;
                 while(i >= 0){
-                    if(course_info[j] == ','||course_info[j] == '\0'){
+                    if(course_info[j] == ','|| j == course_info.length()){
                         if(i == 1)
                             start = j+1;
                         else if(i == 0){
@@ -42,7 +46,7 @@ string search_course(string message){
                     }
                     j++;
                 }
-                string msg_out = "The " +ctg+" of "+message.substr(0,5)+" is "+course_info.substr(start,end-start+1)+".";
+                string msg_out = "The " +ctg+" of "+message.substr(0,5)+" is "+course_info.substr(start,end-start+1)+".\n";
                 printf("The course information has been found; %s", msg_out.c_str());
                 return msg_out;
             } 
@@ -89,6 +93,7 @@ void interrupt_handler(int signal){
 }
 
 int main(){
+
     //handle cntrl^c
     signal(SIGINT, interrupt_handler);
 
