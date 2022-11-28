@@ -73,6 +73,7 @@ string query_courses(string message){
     string course_info; 
     //increment through EE classes in message, compare to ee.txt classes
     for(int i = 0; i <= message.length();i = i + 6){
+        //printf("%i\n", i);
         int flag = 0;
         if(courses.is_open()){
             while(getline(courses,course_info)){
@@ -84,14 +85,15 @@ string query_courses(string message){
                     break;
                 }
             }
-            if(!flag)
+            if(!flag){
                 msg_out += "Didn’t find the course: " + message.substr(i,5) + "\n";
                 printf("Didn’t find the course: %s\n", message.substr(i,5).c_str());
+            }
         }
         courses.clear();
         courses.seekg(0);
     }  
-    //printf("%s",msg_out.c_str());
+    printf("%s",msg_out.c_str());
     return msg_out;
 }
 
@@ -102,7 +104,6 @@ void interrupt_handler(int signal){
 }
 
 int main(){
-
     //handle cntrl^c
     signal(SIGINT, interrupt_handler);
 
@@ -126,6 +127,7 @@ int main(){
         n = recvfrom(udp_socket,buffer,102,0,(struct sockaddr *) &client_address, &client_length);
         printf("The ServerEE received an authentication request from the Main Server\n");
         string message(buffer); //convert to string
+        printf("%s\n",message.c_str());
         string msg_out; //output sring
         //if 0 normal function - search 1 course 1 category
         if(message[0] == '1'){
