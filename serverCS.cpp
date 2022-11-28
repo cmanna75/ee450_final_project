@@ -93,7 +93,6 @@ string query_courses(string message){
         courses.clear();
         courses.seekg(0);
     }  
-    printf("%s",msg_out.c_str());
     return msg_out;
 }
 
@@ -126,20 +125,21 @@ int main(){
         memset(buffer,0,102); //ensure buffer is cleared
         //wait for query from main
         n = recvfrom(udp_socket,buffer,102,0,(struct sockaddr *) &client_address, &client_length);
-        printf("The ServerCS received an authentication request from the Main Server\n");
         string message(buffer); //convert to string
-        printf("%s\n",message.c_str());
         string msg_out; //output sring
         //if 0 normal function - search 1 course 1 category
         if(message[0] == '1'){
+            printf("The ServerCS received received a request from the Main Server about the %s of %s\n", message.substr(8,message.length()-8).c_str(), message.substr(2,5).c_str());
             msg_out = search_course(message.substr(2,message.length()-2));
         }
         //else extra credit - search multiple courses get all categoroes
         else if (message[0] == '2'){
+            printf("The ServerEE received received a request from the Main Server about the following courses: %s\n", message.substr(2,message.length()-2).c_str());
             msg_out = query_courses(message.substr(2,message.length()-2));
         }
         //error occured
         else{
+            printf("The ServerEE received received a invalid request from the Main Server, ERROR\n");
             msg_out = "Error occured\n";
         }
         //send response

@@ -133,7 +133,7 @@ int main(){
         }
         //else extra credit - search multiple courses get all categoroes
         else if (message[0] == '2'){
-            printf("The ServerEE received received a request from the Main Server about the following courses %s\n", message.substr(2,message.length()-2).c_str());
+            printf("The ServerEE received received a request from the Main Server about the following courses: %s\n", message.substr(2,message.length()-2).c_str());
             msg_out = query_courses(message.substr(2,message.length()-2));
         }
         //error occured
