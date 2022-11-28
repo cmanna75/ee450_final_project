@@ -77,6 +77,12 @@ string query_courses(string message){
         int flag = 0;
         if(courses.is_open()){
             while(getline(courses,course_info)){
+                /*
+                //remove carraige return /r
+                if(course_info[course_info.length()-1] == '\r'){
+                    course_info.erase(course_info.length()-1,1);
+                }
+                */
                 //if class codes match,take in all category information
                 if(course_info.substr(0,5) == message.substr(i,5)){
                     msg_out += message.substr(i,5) + ": " + course_info.substr(6,course_info.length() - 6) + "\n";

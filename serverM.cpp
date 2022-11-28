@@ -139,6 +139,7 @@ int main(){
                 printf("char: %s\n", buffer_in);
                 printf("%s\n", course_querry.c_str());
                 memset(buffer_in,0,102);
+                memset(course_buffer_in,0,1000);
 
                 //normal querry 1 course, 1 category
                 if(course_querry[0] == '1'){
@@ -197,16 +198,17 @@ int main(){
                         CS_querry = string(course_buffer_in);
                         memset(course_buffer_in,0,1000);
                     }
-
+                    printf("%s blah\n",EE_querry.c_str());
                     //create response string for client
-                    for(int i = 0; i <= course_count; i++){
+                    for(int i = 0; i < course_count; i++){
                         if(courses[i].substr(0,2) == "EE"){
                             int j = 0;
                             while(EE_querry[j] != '\n'){
                                 j++;
                             }
                             course_response += EE_querry.substr(0,j+1);
-                            EE_querry = EE_querry.substr(j+2,EE_querry.length()-j-2);
+                            if(j != (EE_querry.length()-1))
+                                EE_querry = EE_querry.substr(j+1,EE_querry.length()-j-1);
                         }
                         else if(courses[i].substr(0,2) == "CS"){ 
                             int j = 0;
@@ -214,7 +216,8 @@ int main(){
                                 j++;
                             }
                             course_response += CS_querry.substr(0,j+1);
-                            CS_querry = CS_querry.substr(j+2,CS_querry.length()-j-2);
+                            if(j != (CS_querry.length()-1))
+                                CS_querry = CS_querry.substr(j+1,CS_querry.length()-j-1);
                         }
                         else{
                             course_response +=  "Didn’t find the course: " + courses[i].substr(2,5) + "\n";
