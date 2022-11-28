@@ -19,7 +19,7 @@ string encrypt_msg(string msg){
         //printf("%c %i %lu f18: %c\n",msg[i],i,msg.length(),msg[18]);
         //captial
         if( (ch >= 'A') && (ch <= 'Z')){
-            key = msg[i] + 4;
+            key = ch + 4;
             if(key > 'Z'){
                 key = key - 'Z' + 'A'- 1;
             }
@@ -27,7 +27,7 @@ string encrypt_msg(string msg){
         }
         //lowercase
         else if( (ch >= 'a') && (ch <= 'z')){
-            key = msg[i] + 4;
+            key = ch + 4;
             if(key > 'z'){
                 key = key - 'z' + 'a'- 1;
             }
