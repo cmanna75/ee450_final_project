@@ -104,8 +104,10 @@ int main(){
         string username;
         //Auth for loop gives three attempts before closing child socket
         for(int i = 2; i >= 0; i--){
+            int n;
             memset(client_buffer_in,0,102);
-            int n = recv(child_socket,client_buffer_in,102,0);
+            if (n = recv(child_socket,client_buffer_in,102,0) <= 0)
+                break;
             string auth(client_buffer_in);
             memset(client_buffer_in,0,102);
 
@@ -138,7 +140,8 @@ int main(){
             //loop querry
             while(1){
                 memset(client_buffer_in,0,102);
-                recv(child_socket,client_buffer_in,70,0);
+                if(recv(child_socket,client_buffer_in,70,0)<= 0)
+                    break;
                 string course_querry(client_buffer_in);
                 string course_response;
                 char course_buffer_in[1000]; //buffer for large course info querry (1000 is enough for ~ 10 classes)
@@ -257,7 +260,7 @@ int main(){
         } 
         close(child_socket);
 
-        printf("Socket closed");
+        printf("Child Socket closed\n");
     }
     return 0;
 }
