@@ -198,8 +198,9 @@ int main(){
                         CS_querry = string(course_buffer_in);
                         memset(course_buffer_in,0,1000);
                     }
-                    printf("%s blah\n",EE_querry.c_str());
+                    //printf("%s blah\n",EE_querry.c_str());
                     //create response string for client
+                    course_response = "CourseCode: Credits, Professor, Days, Course Name\n"; //header line
                     for(int i = 0; i < course_count; i++){
                         if(courses[i].substr(0,2) == "EE"){
                             int j = 0;
