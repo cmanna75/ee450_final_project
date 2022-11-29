@@ -116,7 +116,6 @@ int main(){
                 printf("%c\n", auth[i]);
                 if(auth[i] == ','){
                     username = auth.substr(0,i);
-                    printf("yay\n");
                     break;
                 }
             }
