@@ -5,7 +5,6 @@ using namespace std;
 
 //returns 0 if correct, 1 if username is wrong, 2 if password is wrong, 3 if both are wrong
 char check_credentials(string message){
-    printf("%s\n",message.c_str());
     ifstream creds("cred.txt");
     string enc;
     char flag = FAIL_NO_USR;
