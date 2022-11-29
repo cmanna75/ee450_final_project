@@ -112,9 +112,11 @@ int main(){
             memset(client_buffer_in,0,102);
 
             //grabs username from string
-            for(int i = 0; i < n; i++){
+            for(int i = 0; i < auth.length(); i++){
+                printf("%c\n", auth[i]);
                 if(auth[i] == ','){
                     username = auth.substr(0,i);
+                    printf("yay\n");
                     break;
                 }
             }
