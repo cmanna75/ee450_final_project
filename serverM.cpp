@@ -113,7 +113,6 @@ int main(){
 
             //grabs username from string
             for(int i = 0; i < auth.length(); i++){
-                printf("%c\n", auth[i]);
                 if(auth[i] == ','){
                     username = auth.substr(0,i);
                     break;
