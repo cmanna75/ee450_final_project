@@ -5,12 +5,17 @@ using namespace std;
 
 //returns 0 if correct, 1 if username is wrong, 2 if password is wrong, 3 if both are wrong
 char check_credentials(string message){
+    printf("%s\n",message.c_str());
     ifstream creds("cred.txt");
     string enc;
     char flag = FAIL_NO_USR;
     if(creds.is_open()){
         //compare each string
         while(getline(creds,enc)){
+            //remove carraige return /r
+            if(enc[enc.length()-1] == '\r'){
+                enc.erase(enc.length()-1,1);
+            }
             int i = 0;
             while( (i < message.length()) && (i < enc.length())){
                 //if mismatch do not check rest of string
